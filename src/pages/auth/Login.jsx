@@ -29,11 +29,17 @@ const handleSubmit = async (e) => {
     await login(email, password);
     navigate("/dashboard");
   } catch (err) {
-    setError(
-      err.response?.data?.message ||
-      err.response?.data?.detail ||
-      "Login failed. Please try again."
-    );
+    if (err.response?.status === 404) {
+      setError("Account not found. Please register first.");
+    } else if (err.response?.status === 401) {
+      setError("Incorrect password. Please try again.");
+    } else if (err.response?.data?.message) {
+      setError(err.response.data.message);
+    } else if (err.response?.data?.detail) {
+      setError(err.response.data.detail);
+    } else {
+      setError("Login failed. Please try again.");
+    }
   } finally {
     setLoading(false);
   }

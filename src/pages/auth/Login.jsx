@@ -14,28 +14,30 @@ export default function Login() {
   const { login } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+  if (!email || !password) {
+    setError("Enter both email and password");
+    return;
+  }
 
-    if (!email || !password) {
-      setError("Enter both email and password");
-      return;
-    }
+  setLoading(true);
 
-    setLoading(true);
-
-    try {
-      await login(email, password);
-      navigate("/dashboard");
-    } catch (err) {
-      setError(err.response?.data?.message || "Invalid email or password");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  try {
+    await login(email, password);
+    navigate("/dashboard");
+  } catch (err) {
+    setError(
+      err.response?.data?.message ||
+      err.response?.data?.detail ||
+      "Login failed. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   const inputClass =
     "w-full bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all";
 

@@ -14,14 +14,42 @@ export default function EventDetail() {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  /* Photos */
   const [photoFiles, setPhotoFiles] = useState([]);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoError, setPhotoError] = useState("");
 
+  /* Documents */
   const [docLabel, setDocLabel] = useState("");
   const [docFile, setDocFile] = useState(null);
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [docError, setDocError] = useState("");
+
+  /* =========================
+     ERROR MESSAGE HELPER
+  ========================= */
+
+  const getErrorMessage = (err, fallback) => {
+    const data = err.response?.data;
+
+    if (typeof data === "string") {
+      return data;
+    }
+
+    if (data?.message) {
+      return data.message;
+    }
+
+    if (data?.error) {
+      return data.error;
+    }
+
+    return fallback;
+  };
+
+  /* =========================
+     FETCH EVENT
+  ========================= */
 
   const fetchEvent = async () => {
     setLoading(true);
@@ -41,7 +69,7 @@ export default function EventDetail() {
   }, [id]);
 
   /* =========================
-     PHOTO UPLOAD
+     PHOTO SELECTION
   ========================= */
 
   const handlePhotoSelect = (e) => {
@@ -69,7 +97,9 @@ export default function EventDetail() {
   };
 
   const removeSelectedPhoto = (index) => {
-    setPhotoFiles((current) => current.filter((_, i) => i !== index));
+    setPhotoFiles((current) =>
+      current.filter((_, i) => i !== index)
+    );
   };
 
   const clearPhotoSelection = () => {
@@ -79,6 +109,10 @@ export default function EventDetail() {
       photoInputRef.current.value = "";
     }
   };
+
+  /* =========================
+     PHOTO UPLOAD
+  ========================= */
 
   const handlePhotoUpload = async (e) => {
     e.preventDefault();
@@ -93,28 +127,31 @@ export default function EventDetail() {
 
     try {
       /*
-       * Your backend currently accepts one "file" per request,
-       * so upload all selected photos one by one.
+       * Backend accepts one file per request.
+       * Upload selected photos one by one.
        */
-      await Promise.all(
-        photoFiles.map(async (photo) => {
-          const formData = new FormData();
-          formData.append("file", photo);
+      for (const photo of photoFiles) {
+        const formData = new FormData();
 
-          // Do NOT manually set Content-Type.
-          // Browser/Axios will add the correct multipart boundary.
-          await axiosInstance.post(`/events/${id}/photos`, formData);
-        })
-      );
+        formData.append("file", photo);
+
+        await axiosInstance.post(
+          `/events/${id}/photos`,
+          formData
+        );
+      }
 
       clearPhotoSelection();
+
       await fetchEvent();
     } catch (err) {
       console.error("Photo upload failed:", err);
 
       setPhotoError(
-        err.response?.data?.message ||
+        getErrorMessage(
+          err,
           "Failed to upload one or more photos. Please try again."
+        )
       );
     } finally {
       setUploadingPhoto(false);
@@ -122,7 +159,7 @@ export default function EventDetail() {
   };
 
   /* =========================
-     DOCUMENT UPLOAD
+     DOCUMENT SELECTION
   ========================= */
 
   const handleDocSelect = (e) => {
@@ -145,6 +182,10 @@ export default function EventDetail() {
       docInputRef.current.value = "";
     }
   };
+
+  /* =========================
+     DOCUMENT UPLOAD
+  ========================= */
 
   const handleDocUpload = async (e) => {
     e.preventDefault();
@@ -171,11 +212,16 @@ export default function EventDetail() {
 
       /*
        * IMPORTANT:
-       * Do not manually set Content-Type here.
-       * Axios/browser automatically sets:
-       * multipart/form-data; boundary=...
+       *
+       * Do NOT manually set Content-Type.
+       *
+       * axiosInstance detects FormData and removes the
+       * global application/json header.
        */
-      await axiosInstance.post(`/events/${id}/documents`, formData);
+      await axiosInstance.post(
+        `/events/${id}/documents`,
+        formData
+      );
 
       setDocLabel("");
       clearDocSelection();
@@ -185,9 +231,10 @@ export default function EventDetail() {
       console.error("Document upload failed:", err);
 
       setDocError(
-        err.response?.data?.message ||
-          err.response?.data ||
+        getErrorMessage(
+          err,
           "Failed to upload document. Please try again."
+        )
       );
     } finally {
       setUploadingDoc(false);
@@ -199,10 +246,15 @@ export default function EventDetail() {
   ========================= */
 
   const handleDeletePhoto = async (photoId) => {
-    if (!confirm("Delete this photo?")) return;
+    if (!confirm("Delete this photo?")) {
+      return;
+    }
 
     try {
-      await axiosInstance.delete(`/events/photos/${photoId}`);
+      await axiosInstance.delete(
+        `/events/photos/${photoId}`
+      );
+
       await fetchEvent();
     } catch (err) {
       console.error("Failed to delete photo:", err);
@@ -213,11 +265,16 @@ export default function EventDetail() {
      DELETE DOCUMENT
   ========================= */
 
-  const handleDeleteDoc = async (docId) => {
-    if (!confirm("Delete this document?")) return;
+  const handleDeleteDoc = async (documentId) => {
+    if (!confirm("Delete this document?")) {
+      return;
+    }
 
     try {
-      await axiosInstance.delete(`/events/documents/${docId}`);
+      await axiosInstance.delete(
+        `/events/documents/${documentId}`
+      );
+
       await fetchEvent();
     } catch (err) {
       console.error("Failed to delete document:", err);
@@ -229,12 +286,17 @@ export default function EventDetail() {
   ========================= */
 
   const handleDeleteEvent = async () => {
-    if (!confirm("Delete this entire event? This cannot be undone.")) {
+    if (
+      !confirm(
+        "Delete this entire event? This cannot be undone."
+      )
+    ) {
       return;
     }
 
     try {
       await axiosInstance.delete(`/events/${id}`);
+
       window.location.href = "/dashboard/events";
     } catch (err) {
       console.error("Failed to delete event:", err);
@@ -248,31 +310,41 @@ export default function EventDetail() {
   if (loading) {
     return (
       <DashboardLayout>
-        <p className="text-slate-400">Loading...</p>
+        <p className="text-slate-400">
+          Loading...
+        </p>
       </DashboardLayout>
     );
   }
 
+  /* =========================
+     NOT FOUND
+  ========================= */
+
   if (!event) {
     return (
       <DashboardLayout>
-        <p className="text-slate-400">Event not found.</p>
+        <p className="text-slate-400">
+          Event not found.
+        </p>
       </DashboardLayout>
     );
   }
 
   return (
     <DashboardLayout>
-      {/* BACK */}
+
+      {/* Back */}
       <Link
         to="/dashboard/events"
-        className="text-sm text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:hover:text-blue-400 mb-4 inline-block"
+        className="inline-block mb-4 text-sm text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:hover:text-blue-400 transition"
       >
         ← Back to events
       </Link>
 
-      {/* HEADER */}
+      {/* Header */}
       <div className="flex items-start justify-between mb-6">
+
         <div>
           <span className="inline-block text-xs font-medium text-blue-800 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 px-2.5 py-1 rounded-full mb-2">
             {event.category}
@@ -283,11 +355,14 @@ export default function EventDetail() {
           </h1>
 
           <p className="text-slate-500 dark:text-slate-400 mt-1">
-            {new Date(event.eventDate).toLocaleDateString("en-IN", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
+            {new Date(event.eventDate).toLocaleDateString(
+              "en-IN",
+              {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              }
+            )}
           </p>
         </div>
 
@@ -302,23 +377,31 @@ export default function EventDetail() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
         <div className="lg:col-span-2 space-y-6">
-          {/* DESCRIPTION */}
+
+          {/* Description */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+
             <p className="font-semibold text-slate-900 dark:text-white mb-2">
               Description
             </p>
 
             <p className="text-sm text-slate-600 dark:text-slate-400 leading-6">
-              {event.description || "No description provided."}
+              {event.description ||
+                "No description provided."}
             </p>
+
           </div>
 
           {/* =========================
               PHOTOS
           ========================= */}
+
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+
             <div className="flex items-center justify-between mb-4">
+
               <p className="font-semibold text-slate-900 dark:text-white">
                 Photos ({event.photos?.length || 0})
               </p>
@@ -328,18 +411,21 @@ export default function EventDetail() {
                   {photoFiles.length} selected
                 </span>
               )}
+
             </div>
 
-            {/* EXISTING PHOTOS */}
+            {/* Existing photos */}
             {event.photos?.length > 0 && (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-5">
-                {event.photos.map((p) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-5">
+
+                {event.photos.map((photo) => (
                   <div
-                    key={p.id}
+                    key={photo.id}
                     className="relative group aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700"
                   >
+
                     <img
-                      src={p.photoUrl}
+                      src={photo.photoUrl}
                       alt=""
                       className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
                     />
@@ -347,53 +433,76 @@ export default function EventDetail() {
                     {isAdmin && (
                       <button
                         type="button"
-                        onClick={() => handleDeletePhoto(p.id)}
+                        onClick={() =>
+                          handleDeletePhoto(photo.id)
+                        }
                         className="absolute inset-0 bg-black/50 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
                       >
                         Delete
                       </button>
                     )}
+
                   </div>
                 ))}
+
               </div>
             )}
 
-            {/* SELECTED PHOTO PREVIEW */}
+            {/* Selected preview */}
             {photoFiles.length > 0 && (
-              <div className="mb-4">
+              <div className="mb-5">
+
                 <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
                   Selected photos
                 </p>
 
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-                  {photoFiles.map((file, index) => (
-                    <div
-                      key={`${file.name}-${index}`}
-                      className="relative aspect-square rounded-xl overflow-hidden border border-blue-200 dark:border-blue-800 bg-slate-100 dark:bg-slate-800"
-                    >
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt={file.name}
-                        className="w-full h-full object-cover"
-                        onLoad={(e) => URL.revokeObjectURL(e.currentTarget.src)}
-                      />
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
 
-                      <button
-                        type="button"
-                        onClick={() => removeSelectedPhoto(index)}
-                        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/70 text-white text-xs flex items-center justify-center hover:bg-red-600 transition"
+                  {photoFiles.map((file, index) => {
+                    const previewUrl =
+                      URL.createObjectURL(file);
+
+                    return (
+                      <div
+                        key={`${file.name}-${index}`}
+                        className="relative aspect-square rounded-xl overflow-hidden border border-blue-200 dark:border-blue-800 bg-slate-100 dark:bg-slate-800"
                       >
-                        ×
-                      </button>
-                    </div>
-                  ))}
+
+                        <img
+                          src={previewUrl}
+                          alt={file.name}
+                          className="w-full h-full object-cover"
+                          onLoad={(e) =>
+                            URL.revokeObjectURL(
+                              e.currentTarget.src
+                            )
+                          }
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeSelectedPhoto(index)
+                          }
+                          className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/70 text-white text-xs flex items-center justify-center hover:bg-red-600 transition"
+                        >
+                          ×
+                        </button>
+
+                      </div>
+                    );
+                  })}
+
                 </div>
+
               </div>
             )}
 
-            {/* PHOTO UPLOAD */}
+            {/* Upload form */}
             <form onSubmit={handlePhotoUpload}>
+
               <div className="flex flex-col sm:flex-row gap-3">
+
                 <label
                   className={`flex-1 flex items-center justify-center gap-2 border border-dashed rounded-xl px-4 py-3 cursor-pointer transition ${
                     photoFiles.length
@@ -401,12 +510,17 @@ export default function EventDetail() {
                       : "border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30"
                   }`}
                 >
-                  <span className="text-lg">📷</span>
+
+                  <span className="text-lg">
+                    📷
+                  </span>
 
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     {photoFiles.length
                       ? `${photoFiles.length} photo${
-                          photoFiles.length > 1 ? "s" : ""
+                          photoFiles.length > 1
+                            ? "s"
+                            : ""
                         } selected`
                       : "Choose photos"}
                   </span>
@@ -419,84 +533,111 @@ export default function EventDetail() {
                     onChange={handlePhotoSelect}
                     className="hidden"
                   />
+
                 </label>
 
                 <button
                   type="submit"
-                  disabled={!photoFiles.length || uploadingPhoto}
+                  disabled={
+                    !photoFiles.length ||
+                    uploadingPhoto
+                  }
                   className={`sm:w-32 px-5 py-3 rounded-xl text-sm font-semibold transition-all ${
-                    photoFiles.length && !uploadingPhoto
+                    photoFiles.length &&
+                    !uploadingPhoto
                       ? "bg-blue-800 hover:bg-blue-700 active:scale-[0.98] text-white shadow-sm"
                       : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed border border-slate-200 dark:border-slate-700"
                   }`}
                 >
-                  {uploadingPhoto ? "Uploading..." : "Upload"}
+                  {uploadingPhoto
+                    ? "Uploading..."
+                    : "Upload"}
                 </button>
+
               </div>
 
-              {photoFiles.length > 0 && !uploadingPhoto && (
-                <button
-                  type="button"
-                  onClick={clearPhotoSelection}
-                  className="mt-2 text-xs font-medium text-slate-500 hover:text-red-600 transition"
-                >
-                  Clear selection
-                </button>
-              )}
+              {photoFiles.length > 0 &&
+                !uploadingPhoto && (
+                  <button
+                    type="button"
+                    onClick={clearPhotoSelection}
+                    className="mt-2 text-xs font-medium text-slate-500 hover:text-red-600 transition"
+                  >
+                    Clear selection
+                  </button>
+                )}
 
               {photoError && (
                 <p className="mt-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2">
                   {photoError}
                 </p>
               )}
+
             </form>
+
           </div>
 
           {/* =========================
               DOCUMENTS
           ========================= */}
+
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+
             <p className="font-semibold text-slate-900 dark:text-white mb-4">
               Documents ({event.documents?.length || 0})
             </p>
 
-            {/* EXISTING DOCUMENTS */}
+            {/* Existing documents */}
             {event.documents?.length > 0 && (
               <div className="space-y-2 mb-5">
-                {event.documents.map((d) => (
+
+                {event.documents.map((document) => (
                   <div
-                    key={d.id}
+                    key={document.id}
                     className="flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-800 rounded-xl px-4 py-3 border border-slate-100 dark:border-slate-700"
                   >
+
                     <a
-                      href={d.fileUrl}
+                      href={document.fileUrl}
                       target="_blank"
                       rel="noreferrer"
                       className="flex items-center gap-3 min-w-0 text-sm font-medium text-blue-700 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                     >
+
                       <span className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-950/50 flex items-center justify-center text-base shrink-0">
                         📄
                       </span>
 
-                      <span className="truncate">{d.label}</span>
+                      <span className="truncate">
+                        {document.label}
+                      </span>
+
                     </a>
 
                     {isAdmin && (
                       <button
                         type="button"
-                        onClick={() => handleDeleteDoc(d.id)}
+                        onClick={() =>
+                          handleDeleteDoc(document.id)
+                        }
                         className="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 whitespace-nowrap transition"
                       >
                         Delete
                       </button>
                     )}
+
                   </div>
                 ))}
+
               </div>
             )}
 
-            {/* DOCUMENT UPLOAD */}
-            <form onSubmit={handleDocUpload} className="space-y-3">
+            {/* Document form */}
+            <form
+              onSubmit={handleDocUpload}
+              className="space-y-3"
+            >
+
               <input
                 type="text"
                 value={docLabel}
@@ -509,6 +650,7 @@ export default function EventDetail() {
               />
 
               <div className="flex flex-col sm:flex-row gap-3">
+
                 <label
                   className={`flex-1 flex items-center gap-3 border border-dashed rounded-xl px-4 py-3 cursor-pointer transition ${
                     docFile
@@ -516,18 +658,23 @@ export default function EventDetail() {
                       : "border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30"
                   }`}
                 >
+
                   <span className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-950/50 flex items-center justify-center">
                     📎
                   </span>
 
                   <div className="min-w-0">
+
                     <p className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
-                      {docFile ? docFile.name : "Choose document"}
+                      {docFile
+                        ? docFile.name
+                        : "Choose document"}
                     </p>
 
                     <p className="text-xs text-slate-400 mt-0.5">
                       PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX
                     </p>
+
                   </div>
 
                   <input
@@ -537,19 +684,29 @@ export default function EventDetail() {
                     onChange={handleDocSelect}
                     className="hidden"
                   />
+
                 </label>
 
                 <button
                   type="submit"
-                  disabled={!docFile || !docLabel.trim() || uploadingDoc}
+                  disabled={
+                    !docFile ||
+                    !docLabel.trim() ||
+                    uploadingDoc
+                  }
                   className={`sm:w-44 px-5 py-3 rounded-xl text-sm font-semibold transition-all ${
-                    docFile && docLabel.trim() && !uploadingDoc
+                    docFile &&
+                    docLabel.trim() &&
+                    !uploadingDoc
                       ? "bg-blue-800 hover:bg-blue-700 active:scale-[0.98] text-white shadow-sm"
                       : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed border border-slate-200 dark:border-slate-700"
                   }`}
                 >
-                  {uploadingDoc ? "Uploading..." : "Upload document"}
+                  {uploadingDoc
+                    ? "Uploading..."
+                    : "Upload document"}
                 </button>
+
               </div>
 
               {docFile && !uploadingDoc && (
@@ -567,14 +724,19 @@ export default function EventDetail() {
                   {docError}
                 </p>
               )}
+
             </form>
+
           </div>
+
         </div>
 
         {/* =========================
             COORDINATOR
         ========================= */}
+
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 h-fit">
+
           <p className="font-semibold text-slate-900 dark:text-white mb-4">
             Coordinator
           </p>
@@ -592,9 +754,13 @@ export default function EventDetail() {
               )}
             </>
           ) : (
-            <p className="text-sm text-slate-400">Not assigned</p>
+            <p className="text-sm text-slate-400">
+              Not assigned
+            </p>
           )}
+
         </div>
+
       </div>
     </DashboardLayout>
   );

@@ -10,17 +10,26 @@ const axiosInstance = axios.create({
   },
 });
 
-// ===============================
-// Request Interceptor
-// ===============================
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-
     const isAuthRequest = config.url?.startsWith("/auth/");
 
     if (token && !isAuthRequest) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    /*
+     * FormData uploads
+     *
+     * Do NOT send application/json for FormData.
+     * Let Axios/browser automatically create:
+     *
+     * multipart/form-data; boundary=...
+     */
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+      delete config.headers["content-type"];
     }
 
     return config;
@@ -28,9 +37,6 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ===============================
-// Response Interceptor
-// ===============================
 axiosInstance.interceptors.response.use(
   (response) => response,
 
@@ -42,20 +48,22 @@ axiosInstance.interceptors.response.use(
     const status = error.response?.status;
     const url = error.config?.url || "";
 
-    const isAuthRequest = url.startsWith("/auth/");
-
     /*
      * IMPORTANT:
-     * Do NOT redirect when login/register itself returns 401.
      *
-     * Otherwise the Login page reloads and its error message
-     * disappears immediately.
+     * Do NOT redirect to /login when the 401 comes
+     * from the login endpoint itself.
+     *
+     * Otherwise a wrong password causes the page to
+     * reload and the Login component loses its error state.
      */
+    const isAuthRequest = url.startsWith("/auth/");
+
     if (status === 401 && !isAuthRequest) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
 
-      window.location.replace("/login");
+      window.location.href = "/login";
     }
 
     return Promise.reject(error);

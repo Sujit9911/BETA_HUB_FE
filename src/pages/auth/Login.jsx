@@ -15,28 +15,16 @@ export default function Login() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-
-    if (error) {
-      setError("");
-    }
-  };
-
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-
-    if (error) {
-      setError("");
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    /*
+     * Clear the previous error only when the user
+     * submits again.
+     */
     setError("");
 
-    if (!email || !password) {
+    if (!email.trim() || !password) {
       setError("Enter both email and password");
       return;
     }
@@ -44,7 +32,8 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(email, password);
+      await login(email.trim(), password);
+
       navigate("/dashboard");
     } catch (err) {
       if (err.response?.status === 404) {
@@ -69,8 +58,10 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center px-4 py-8 relative transition-colors">
 
+      {/* Top line */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-700 via-blue-500 to-amber-500" />
 
+      {/* Theme */}
       <div className="absolute top-5 right-5">
         <button
           onClick={toggleTheme}
@@ -85,7 +76,6 @@ export default function Login() {
 
         {/* Logos */}
         <div className="flex items-center justify-center mb-7">
-
           <div className="flex items-center gap-5">
 
             <div className="relative">
@@ -111,10 +101,9 @@ export default function Login() {
             </div>
 
           </div>
-
         </div>
 
-        {/* Login Card */}
+        {/* Card */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl shadow-slate-900/5 dark:shadow-black/20 overflow-hidden">
 
           <div className="h-1 bg-gradient-to-r from-blue-700 to-blue-500" />
@@ -151,28 +140,42 @@ export default function Login() {
                 <input
                   type="email"
                   value={email}
-                  onChange={handleEmailChange}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+
+                    /*
+                     * Remove error when user starts correcting
+                     * the form.
+                     */
+                    if (error) {
+                      setError("");
+                    }
+                  }}
                   placeholder="you@mmcoe.edu.in"
                   className={inputClass}
+                  autoComplete="email"
                 />
               </div>
 
               {/* Password */}
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Password
-                  </label>
-
-                </div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Password
+                </label>
 
                 <input
                   type="password"
                   value={password}
-                  onChange={handlePasswordChange}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+
+                    if (error) {
+                      setError("");
+                    }
+                  }}
                   placeholder="Enter your password"
                   className={inputClass}
+                  autoComplete="current-password"
                 />
               </div>
 
@@ -197,9 +200,8 @@ export default function Login() {
 
             </form>
 
-            {/* Register Divider */}
+            {/* Register separator */}
             <div className="flex items-center gap-3 my-6">
-
               <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
 
               <span className="text-xs text-slate-400">
@@ -207,21 +209,17 @@ export default function Login() {
               </span>
 
               <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
-
             </div>
 
             {/* Register */}
             <p className="text-center text-sm text-slate-500 dark:text-slate-400">
-
               Don't have an account?{" "}
-
               <Link
                 to="/register"
                 className="font-semibold text-blue-700 dark:text-blue-400 hover:text-blue-500 transition"
               >
                 Create one →
               </Link>
-
             </p>
 
           </div>

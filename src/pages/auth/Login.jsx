@@ -14,36 +14,55 @@ export default function Login() {
   const { login } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
 
-  if (!email || !password) {
-    setError("Enter both email and password");
-    return;
-  }
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
 
-  setLoading(true);
-
-  try {
-    await login(email, password);
-    navigate("/dashboard");
-  } catch (err) {
-    if (err.response?.status === 404) {
-      setError("Account not found. Please register first.");
-    } else if (err.response?.status === 401) {
-      setError("Incorrect password. Please try again.");
-    } else if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.response?.data?.detail) {
-      setError(err.response.data.detail);
-    } else {
-      setError("Login failed. Please try again.");
+    if (error) {
+      setError("");
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+
+    if (error) {
+      setError("");
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setError("");
+
+    if (!email || !password) {
+      setError("Enter both email and password");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await login(email, password);
+      navigate("/dashboard");
+    } catch (err) {
+      if (err.response?.status === 404) {
+        setError("Account not found. Please register first.");
+      } else if (err.response?.status === 401) {
+        setError("Incorrect password. Please try again.");
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.response?.data?.detail) {
+        setError(err.response.data.detail);
+      } else {
+        setError("Login failed. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const inputClass =
     "w-full bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all";
 
@@ -64,6 +83,7 @@ const handleSubmit = async (e) => {
 
       <div className="w-full max-w-md">
 
+        {/* Logos */}
         <div className="flex items-center justify-center mb-7">
 
           <div className="flex items-center gap-5">
@@ -94,12 +114,14 @@ const handleSubmit = async (e) => {
 
         </div>
 
+        {/* Login Card */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl shadow-slate-900/5 dark:shadow-black/20 overflow-hidden">
 
           <div className="h-1 bg-gradient-to-r from-blue-700 to-blue-500" />
 
           <div className="px-7 sm:px-9 py-9">
 
+            {/* Heading */}
             <div className="text-center mb-8">
 
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-[11px] font-bold tracking-wide mb-3">
@@ -117,8 +139,10 @@ const handleSubmit = async (e) => {
 
             </div>
 
+            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
 
+              {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                   Email
@@ -127,34 +151,42 @@ const handleSubmit = async (e) => {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
                   placeholder="you@mmcoe.edu.in"
                   className={inputClass}
                 />
               </div>
 
+              {/* Password */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
+
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     Password
                   </label>
+
                 </div>
 
                 <input
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
                   placeholder="Enter your password"
                   className={inputClass}
                 />
               </div>
 
+              {/* Error */}
               {error && (
-                <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl px-3.5 py-3">
+                <div
+                  role="alert"
+                  className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl px-3.5 py-3"
+                >
                   {error}
-                </p>
+                </div>
               )}
 
+              {/* Submit */}
               <button
                 type="submit"
                 disabled={loading}
@@ -165,25 +197,37 @@ const handleSubmit = async (e) => {
 
             </form>
 
+            {/* Register Divider */}
             <div className="flex items-center gap-3 my-6">
+
               <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
-              <span className="text-xs text-slate-400">New to BETA?</span>
+
+              <span className="text-xs text-slate-400">
+                New to BETA?
+              </span>
+
               <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+
             </div>
 
+            {/* Register */}
             <p className="text-center text-sm text-slate-500 dark:text-slate-400">
+
               Don't have an account?{" "}
+
               <Link
                 to="/register"
                 className="font-semibold text-blue-700 dark:text-blue-400 hover:text-blue-500 transition"
               >
                 Create one →
               </Link>
+
             </p>
 
           </div>
         </div>
 
+        {/* Footer */}
         <p className="text-center text-xs text-slate-400 dark:text-slate-600 mt-5">
           Bench for Electronics and Telecommunication Association
         </p>

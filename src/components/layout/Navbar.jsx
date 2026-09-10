@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import GlobalSearch from "../dashboard/GlobalSearch";
@@ -8,6 +9,7 @@ import betaLogo from "../../assets/logo.png";
 export default function Navbar({ onMobileMenu }) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const ref = useRef(null);
@@ -26,6 +28,12 @@ export default function Navbar({ onMobileMenu }) {
     };
   }, []);
 
+  const handleLogout = () => {
+    logout();
+    setProfileOpen(false);
+    navigate("/");
+  };
+
   const initials = user?.name
     ? user.name
         .split(" ")
@@ -37,7 +45,8 @@ export default function Navbar({ onMobileMenu }) {
 
   return (
     <header className="sticky top-0 z-40 flex items-center gap-3 md:gap-4 px-4 md:px-6 py-3 bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80">
-      
+
+      {/* Mobile menu */}
       <button
         onClick={onMobileMenu}
         aria-label="Open BETA menu"
@@ -50,6 +59,7 @@ export default function Navbar({ onMobileMenu }) {
         />
       </button>
 
+      {/* Search */}
       <div className="flex-1 min-w-0 max-w-2xl">
         <GlobalSearch />
       </div>
@@ -57,8 +67,11 @@ export default function Navbar({ onMobileMenu }) {
       <div className="flex-1 hidden lg:block" />
 
       <div className="flex items-center gap-2">
+
+        {/* Notifications */}
         <NotificationPanel />
 
+        {/* Theme */}
         <button
           onClick={toggleTheme}
           aria-label="Toggle theme"
@@ -79,7 +92,9 @@ export default function Navbar({ onMobileMenu }) {
           </span>
         </button>
 
+        {/* Profile */}
         <div ref={ref} className="relative ml-1">
+
           <button
             onClick={() => setProfileOpen((o) => !o)}
             className="
@@ -143,13 +158,18 @@ export default function Navbar({ onMobileMenu }) {
                 z-50
               "
             >
+
+              {/* User info */}
               <div className="p-4 bg-slate-50 dark:bg-slate-950/60">
+
                 <div className="flex items-center gap-3">
+
                   <div className="w-10 h-10 rounded-xl bg-blue-700 text-white flex items-center justify-center text-xs font-bold">
                     {initials}
                   </div>
 
                   <div className="min-w-0">
+
                     <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
                       {user?.name}
                     </p>
@@ -157,24 +177,31 @@ export default function Navbar({ onMobileMenu }) {
                     <p className="text-xs text-slate-400 truncate mt-0.5">
                       {user?.email}
                     </p>
+
                   </div>
+
                 </div>
 
-                <span className="
-                  inline-flex mt-3
-                  text-[10px] font-bold
-                  text-amber-700 dark:text-amber-400
-                  bg-amber-50 dark:bg-amber-950/40
-                  border border-amber-100 dark:border-amber-900/40
-                  px-2.5 py-1 rounded-full
-                ">
+                <span
+                  className="
+                    inline-flex mt-3
+                    text-[10px] font-bold
+                    text-amber-700 dark:text-amber-400
+                    bg-amber-50 dark:bg-amber-950/40
+                    border border-amber-100 dark:border-amber-900/40
+                    px-2.5 py-1 rounded-full
+                  "
+                >
                   {user?.role}
                 </span>
+
               </div>
 
+              {/* Logout */}
               <div className="p-1.5">
+
                 <button
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="
                     w-full flex items-center gap-2
                     text-left text-sm font-medium
@@ -187,10 +214,14 @@ export default function Navbar({ onMobileMenu }) {
                   <span>↪</span>
                   Log out
                 </button>
+
               </div>
+
             </div>
           )}
+
         </div>
+
       </div>
     </header>
   );

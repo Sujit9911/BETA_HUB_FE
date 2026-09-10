@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import GlobalSearch from "../dashboard/GlobalSearch";
@@ -9,7 +8,6 @@ import betaLogo from "../../assets/logo.png";
 export default function Navbar({ onMobileMenu }) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const navigate = useNavigate();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const ref = useRef(null);
@@ -29,9 +27,14 @@ export default function Navbar({ onMobileMenu }) {
   }, []);
 
   const handleLogout = () => {
+    // Clear authentication
     logout();
+
+    // Close profile menu
     setProfileOpen(false);
-    navigate("/");
+
+    // Hard redirect to landing page
+    window.location.replace("/");
   };
 
   const initials = user?.name
@@ -159,7 +162,7 @@ export default function Navbar({ onMobileMenu }) {
               "
             >
 
-              {/* User info */}
+              {/* User Info */}
               <div className="p-4 bg-slate-50 dark:bg-slate-950/60">
 
                 <div className="flex items-center gap-3">

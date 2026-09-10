@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import publicAxios from "../../api/publicAxios";
 import { useTheme } from "../../context/ThemeContext";
+
 import betaLogo from "../../assets/logo.png";
 import collegeLogo from "../../assets/college-logo.png";
 import principalPhoto from "../../assets/principal-sachin-sakhare.png";
@@ -39,7 +40,7 @@ export default function Landing() {
         setEvents(eventsRes.data);
         setAlumni(alumniRes.data.slice(0, 6));
 
-        const sortedYears = yearsRes.data.sort().reverse();
+        const sortedYears = [...yearsRes.data].sort().reverse();
         setYears(sortedYears);
 
         if (sortedYears.length > 0) {
@@ -76,7 +77,9 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
 
-      {/* Navbar */}
+      {/* =========================
+          Navbar
+      ========================== */}
       <header className="sticky top-0 z-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
 
@@ -128,6 +131,13 @@ export default function Landing() {
             >
               Alumni
             </a>
+
+            <a
+              href="#contact"
+              className="hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
+            >
+              Contact
+            </a>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -149,7 +159,9 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero */}
+      {/* =========================
+          Hero
+      ========================== */}
       <section className="relative overflow-hidden">
 
         <div className="absolute inset-0 bg-gradient-to-b from-blue-50/70 via-slate-50 to-slate-50 dark:from-blue-950/20 dark:via-slate-950 dark:to-slate-950" />
@@ -198,8 +210,8 @@ export default function Landing() {
           </div>
 
           <h1 className="text-6xl sm:text-7xl md:text-8xl font-bold tracking-[-0.01em] text-slate-950 dark:text-white">
-  BETA
-</h1>
+            BETA
+          </h1>
 
           <p className="mt-3 text-base sm:text-lg text-slate-500 dark:text-slate-400">
             Bench for Electronics and Telecommunication Association
@@ -260,12 +272,15 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Events */}
+      {/* =========================
+          Events
+      ========================== */}
       <section
         id="pulse"
         className="max-w-6xl mx-auto px-6 py-14 sm:py-16"
       >
         <div className="text-center mb-10">
+
           <p className="flex items-center justify-center gap-2 text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-widest mb-2">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-700 dark:bg-blue-400" />
             What's On
@@ -278,6 +293,7 @@ export default function Landing() {
           <p className="text-slate-500 dark:text-slate-400 mt-1">
             Technical, cultural, and workshop events from BETA
           </p>
+
         </div>
 
         {loading ? (
@@ -288,12 +304,15 @@ export default function Landing() {
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+
             {events.slice(0, 6).map((event) => (
               <div
                 key={event.id}
                 className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden hover:border-blue-300 dark:hover:border-blue-800 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/5 dark:hover:shadow-black/20 transition-all duration-200"
               >
+
                 <div className="h-36 sm:h-32 bg-slate-100 dark:bg-slate-800 overflow-hidden">
+
                   {event.photos?.[0]?.photoUrl ? (
                     <img
                       src={event.photos[0].photoUrl}
@@ -305,9 +324,11 @@ export default function Landing() {
                       📅
                     </div>
                   )}
+
                 </div>
 
                 <div className="p-4">
+
                   <span className="inline-block text-[11px] font-medium text-blue-800 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 px-2.5 py-1 rounded-full mb-2">
                     {event.category}
                   </span>
@@ -323,18 +344,24 @@ export default function Landing() {
                       year: "numeric",
                     })}
                   </p>
+
                 </div>
               </div>
             ))}
+
           </div>
         )}
       </section>
 
-      {/* Faculty */}
+      {/* =========================
+          Faculty
+      ========================== */}
       <section className="bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800 py-16 sm:py-20 overflow-hidden">
+
         <div className="max-w-6xl mx-auto px-6">
 
           <div className="text-center mb-12">
+
             <p className="flex items-center justify-center gap-2 text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-widest mb-3">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-700 dark:bg-blue-400" />
               Guided By
@@ -347,19 +374,24 @@ export default function Landing() {
             <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-xl mx-auto">
               The mentors and leaders supporting BETA's journey.
             </p>
+
           </div>
 
+          {/* Principal */}
           <div className="max-w-4xl mx-auto mb-12">
+
             <div className="group relative overflow-hidden rounded-3xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
 
               <div className="grid md:grid-cols-[260px_1fr] items-stretch">
 
                 <div className="h-64 md:h-auto overflow-hidden bg-slate-200 dark:bg-slate-700">
+
                   <img
                     src={principalPhoto}
                     alt="Dr. Sachin Sakhare"
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                   />
+
                 </div>
 
                 <div className="p-7 md:p-9 flex flex-col justify-center">
@@ -378,19 +410,16 @@ export default function Landing() {
                     and its students.
                   </p>
 
-                  <div className="mt-5 flex items-center gap-2 text-sm font-semibold text-blue-700 dark:text-blue-400">
-                    Guiding BETA
-                    <span className="group-hover:translate-x-1 transition-transform">
-                      →
-                    </span>
-                  </div>
-
                 </div>
+
               </div>
             </div>
+
           </div>
 
+          {/* Faculty */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
             {[
               {
                 name: "Ms. Swati N. Deshmukh",
@@ -417,17 +446,21 @@ export default function Landing() {
                 key={person.name}
                 className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 hover:border-blue-300 dark:hover:border-blue-700 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/5 dark:hover:shadow-black/20 transition-all duration-300"
               >
+
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-700 dark:bg-blue-400 mx-auto mb-3 ring-4 ring-white dark:ring-slate-900" />
 
                 <div className="h-56 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 mb-4">
+
                   <img
                     src={person.photo}
                     alt={person.name}
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                   />
+
                 </div>
 
                 <div className="min-h-[65px]">
+
                   <p className="font-semibold text-sm text-slate-900 dark:text-white leading-snug group-hover:text-blue-800 dark:group-hover:text-blue-400 transition-colors">
                     {person.name}
                   </p>
@@ -435,20 +468,22 @@ export default function Landing() {
                   <p className="text-xs text-blue-700 dark:text-blue-400 font-medium mt-1.5">
                     {person.role}
                   </p>
+
                 </div>
 
-                <div className="mt-3 text-xs text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                  Supporting BETA →
-                </div>
               </div>
             ))}
+
           </div>
 
         </div>
       </section>
 
-      {/* About MMCOE */}
+      {/* =========================
+          About MMCOE
+      ========================== */}
       <section className="max-w-4xl mx-auto px-6 py-14 sm:py-16">
+
         <div className="group bg-gradient-to-br from-blue-800 to-blue-900 dark:from-blue-950 dark:to-slate-900 rounded-3xl p-8 sm:p-10 text-center border border-blue-900/20 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-900/10 transition-all duration-300">
 
           <img
@@ -478,15 +513,19 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Journey */}
+      {/* =========================
+          Journey
+      ========================== */}
       {years.length > 0 && (
         <section
           id="journey"
           className="bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800 py-16"
         >
+
           <div className="max-w-4xl mx-auto px-6">
 
             <div className="text-center mb-12">
+
               <p className="flex items-center justify-center gap-2 text-xs font-bold text-amber-600 dark:text-amber-500 uppercase tracking-widest mb-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-500" />
                 Our Story
@@ -495,9 +534,11 @@ export default function Landing() {
               <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
                 The BETA Journey
               </h2>
+
             </div>
 
             <div className="relative pl-8">
+
               <div className="absolute left-2.5 top-2 bottom-2 w-0.5 bg-slate-200 dark:bg-slate-800" />
 
               {years.map((year, i) => (
@@ -505,6 +546,7 @@ export default function Landing() {
                   key={year}
                   className="relative pb-8 last:pb-0 group"
                 >
+
                   <div
                     className={`absolute -left-8 top-1 w-5 h-5 rounded-full border-4 border-white dark:border-slate-900 transition-transform duration-200 group-hover:scale-125 ${
                       i === 0
@@ -526,10 +568,12 @@ export default function Landing() {
                     Core committee active, organizing events and driving BETA
                     forward.
                   </p>
+
                 </div>
               ))}
 
               <div className="relative group">
+
                 <div className="absolute -left-8 top-1 w-5 h-5 rounded-full border-4 border-white dark:border-slate-900 bg-amber-500 flex items-center justify-center group-hover:scale-125 transition-transform duration-200" />
 
                 <p className="font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
@@ -539,6 +583,7 @@ export default function Landing() {
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                   BETA Digital Hub launches — bringing everything online.
                 </p>
+
               </div>
 
             </div>
@@ -546,11 +591,14 @@ export default function Landing() {
         </section>
       )}
 
-      {/* Team */}
+      {/* =========================
+          Team
+      ========================== */}
       <section
         id="team"
         className="max-w-6xl mx-auto px-6 py-14 sm:py-16"
       >
+
         <div className="text-center mb-10">
 
           <p className="flex items-center justify-center gap-2 text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-widest mb-2">
@@ -578,6 +626,7 @@ export default function Landing() {
           </p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+
             {team.map((m) => {
               const initials = m.name
                 .split(" ")
@@ -591,6 +640,7 @@ export default function Landing() {
                   key={m.id}
                   className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 text-center hover:border-blue-300 dark:hover:border-blue-800 hover:-translate-y-1 hover:shadow-md hover:shadow-slate-900/5 dark:hover:shadow-black/20 transition-all duration-200"
                 >
+
                   {m.photoUrl ? (
                     <img
                       src={m.photoUrl}
@@ -610,18 +660,23 @@ export default function Landing() {
                   <p className="text-xs text-blue-700 dark:text-blue-400 font-medium mt-0.5">
                     {m.designation}
                   </p>
+
                 </div>
               );
             })}
+
           </div>
         )}
       </section>
 
-      {/* Alumni */}
+      {/* =========================
+          Alumni
+      ========================== */}
       <section
         id="alumni"
         className="bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800 py-16"
       >
+
         <div className="max-w-6xl mx-auto px-6">
 
           <div className="text-center mb-10">
@@ -651,6 +706,7 @@ export default function Landing() {
             </p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+
               {alumni.map((a) => {
                 const initials = a.name
                   .split(" ")
@@ -664,6 +720,7 @@ export default function Landing() {
                     key={a.id}
                     className="group bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 text-center hover:bg-white dark:hover:bg-slate-900 hover:border hover:border-slate-200 dark:hover:border-slate-700 hover:-translate-y-1 hover:shadow-md transition-all duration-200"
                   >
+
                     {a.photoUrl ? (
                       <img
                         src={a.photoUrl}
@@ -683,16 +740,20 @@ export default function Landing() {
                     <p className="text-[11px] text-slate-400 truncate">
                       {a.company || "—"}
                     </p>
+
                   </div>
                 );
               })}
+
             </div>
           )}
 
         </div>
       </section>
 
-      {/* Final CTA */}
+      {/* =========================
+          Final CTA
+      ========================== */}
       <section className="max-w-3xl mx-auto px-6 py-14 sm:py-16 text-center">
 
         <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
@@ -713,8 +774,152 @@ export default function Landing() {
 
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 py-8 text-center">
+      {/* =========================
+          Contact
+      ========================== */}
+      <section
+        id="contact"
+        className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-16"
+      >
+
+        <div className="max-w-5xl mx-auto px-6">
+
+          <div className="text-center mb-10">
+
+            <p className="flex items-center justify-center gap-2 text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-widest mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-700 dark:bg-blue-400" />
+              Get In Touch
+            </p>
+
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+              Connect with BETA
+            </h2>
+
+            <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-lg mx-auto">
+              Stay connected with BETA MMCOE through our official social
+              channels or reach out to us directly.
+            </p>
+
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+            {/* LinkedIn */}
+            <a
+              href="https://www.linkedin.com/in/beta-mmcoe"
+              target="_blank"
+              rel="noreferrer"
+              className="group flex items-center gap-4 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:border-blue-300 dark:hover:border-blue-700 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-900/5 transition-all duration-300"
+            >
+              <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
+
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-5 h-5 fill-current"
+                  aria-hidden="true"
+                >
+                  <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.3ZM5.32 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM3.54 20.45H7.1V8.99H3.54v11.46ZM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0Z" />
+                </svg>
+
+              </div>
+
+              <div className="text-left min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                  LinkedIn
+                </p>
+
+                <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
+                  BETA MMCOE
+                </p>
+              </div>
+
+              <span className="ml-auto text-slate-300 dark:text-slate-600 group-hover:text-blue-600 transition-colors">
+                ↗
+              </span>
+            </a>
+
+            {/* Instagram */}
+            <a
+              href="https://www.instagram.com/beta_mmcoe/"
+              target="_blank"
+              rel="noreferrer"
+              className="group flex items-center gap-4 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:border-blue-300 dark:hover:border-blue-700 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-900/5 transition-all duration-300"
+            >
+              <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
+
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-5 h-5 fill-none stroke-current"
+                  strokeWidth="1.8"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+                </svg>
+
+              </div>
+
+              <div className="text-left min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                  Instagram
+                </p>
+
+                <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
+                  @beta_mmcoe
+                </p>
+              </div>
+
+              <span className="ml-auto text-slate-300 dark:text-slate-600 group-hover:text-blue-600 transition-colors">
+                ↗
+              </span>
+            </a>
+
+            {/* Email */}
+            <a
+              href="mailto:beta@mmcoe.edu.in"
+              className="group flex items-center gap-4 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:border-blue-300 dark:hover:border-blue-700 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-900/5 transition-all duration-300"
+            >
+              <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
+
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-5 h-5 fill-none stroke-current"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <path d="m4 7 8 6 8-6" />
+                </svg>
+
+              </div>
+
+              <div className="text-left min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                  Email
+                </p>
+
+                <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors truncate">
+                  beta@mmcoe.edu.in
+                </p>
+              </div>
+
+              <span className="ml-auto text-slate-300 dark:text-slate-600 group-hover:text-blue-600 transition-colors">
+                ↗
+              </span>
+            </a>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* =========================
+          Footer
+      ========================== */}
+      <footer className="border-t border-slate-200 dark:border-slate-800 py-8">
 
         <div className="flex items-center justify-center gap-3 mb-3">
 
@@ -732,10 +937,47 @@ export default function Landing() {
 
         </div>
 
-        <p className="text-sm text-slate-400 dark:text-slate-600">
+        <p className="text-sm text-slate-400 dark:text-slate-600 text-center px-6">
           © 2026 BETA — MMCOE, Pune. Bench for Electronics and Telecommunication
           Association.
         </p>
+
+        <div className="flex items-center justify-center gap-5 mt-4">
+
+          <a
+            href="https://www.linkedin.com/in/beta-mmcoe"
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs font-medium text-slate-400 hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
+          >
+            LinkedIn
+          </a>
+
+          <span className="text-slate-300 dark:text-slate-700">
+            •
+          </span>
+
+          <a
+            href="https://www.instagram.com/beta_mmcoe/"
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs font-medium text-slate-400 hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
+          >
+            Instagram
+          </a>
+
+          <span className="text-slate-300 dark:text-slate-700">
+            •
+          </span>
+
+          <a
+            href="mailto:beta@mmcoe.edu.in"
+            className="text-xs font-medium text-slate-400 hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
+          >
+            Email
+          </a>
+
+        </div>
 
       </footer>
 

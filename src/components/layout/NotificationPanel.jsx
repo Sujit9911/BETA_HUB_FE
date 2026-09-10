@@ -39,12 +39,26 @@ export default function NotificationPanel() {
   };
 
   useEffect(() => {
-    fetchUnread();
+  fetchUnread();
 
-    const interval = setInterval(fetchUnread, 30000);
+  const interval = setInterval(fetchUnread, 60000);
 
-    return () => clearInterval(interval);
-  }, []);
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === "visible") {
+      fetchUnread();
+    }
+  };
+
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+
+  return () => {
+    clearInterval(interval);
+    document.removeEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+  };
+}, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
